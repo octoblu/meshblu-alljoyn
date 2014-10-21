@@ -1,6 +1,7 @@
 var util = require('util');
 var EventEmitter = require('events').EventEmitter;
-
+var alljoyn = require('alljoyn'); 
+var _ = require('lodash');
 var MESSAGE_SCHEMA = {
   type: 'object',
   properties: {
@@ -53,82 +54,13 @@ var OPTIONS_SCHEMA = {
 };
 
 function Plugin(){
-  this.options = {};
+  this.options = getDefaultOptions(); 
   this.messageSchema = MESSAGE_SCHEMA;
   this.optionsSchema = OPTIONS_SCHEMA;
   var self = this; 
   self.sessions = []; 
 
-	function onFound(name){
-	  console.log('FoundAdvertisedName', name);
-	  var sessionId = bus.joinSession(name, 27, 0);
-	  console.log('JoinSession ' + sessionId);
-	  self.sessions = _.union([sessionId], self.sessions);
-	}
-
-	function onLost(name){
-	  console.log('LostAdvertisedName', name);
-	}
-
-	function onChanged(name){
-	  console.log('NameOwnerChanged', name);
-	}
-
-	var bus = this.bus = alljoyn.BusAttachment('skynet-alljoyn');
-	var inter = this.inter = alljoyn.InterfaceDescription();
-	var listener = alljoyn.BusListener(onFound, onLost, onChanged);
-
-	bus.createInterface(this.options.interfaceName, inter);
-	bus.registerBusListener(listener);
-
-	bus.start();
-
-	function onAcceptSessionJoiner(port, joiner){
-	  console.log("AcceptSessionJoiner", port, joiner);
-	  //TODO possibly be more selective
-	  return true;
-	}
-
-	function onSessionJoined(port, sId, joiner){
-	  self.sessions = _.union([sId], self.sessions);
-	  console.log("SessionJoined", port, sId, joiner);
-	}
-
-	bus.connect();
-
-	if(this.options.advertisedName){
-	  var portListener = alljoyn.SessionPortListener(onAcceptSessionJoiner, onSessionJoined);
-	  var fullName = this.options.interfaceName + '.' + this.options.advertisedName;
-	  console.log("RequestName " + bus.requestName(fullName));
-	  console.log("AdvertiseName " + bus.advertiseName(fullName));
-	  console.log("BindSessionPort " + bus.bindSessionPort(27, portListener));
-	}
-
-	var notificationService = this.notificationService = alljoyn.NotificationService("skynet-alljoyn", bus, 0);
-	inter.addSignal(this.options.signalMemberName, "s", "msg");
-	var messageObject = this.messageObject = alljoyn.BusObject(this.options.messageServiceName);
-	messageObject.addInterface(inter);
-
-	function onSignalReceived(msg, info){
-	  console.log("Signal received: ", msg, info);
-	  messenger.send({
-	    devices: self.options.relayUuid,
-	    payload: {
-	      msg: msg,
-	      info: info
-	    }
-	  });
-	}
-	if(this.options.relayUuid){
-	  bus.registerSignalHandler(messageObject, onSignalReceived, inter, this.options.signalMemberName);
-	}
-
-	bus.registerBusObject(messageObject);
-
-	if(this.options.findAdvertisedName){
-	  bus.findAdvertisedName(this.options.findAdvertisedName);
-	}
-
+	
   return this;
 }
 util.inherits(Plugin, EventEmitter);
@@ -155,13 +87,100 @@ Plugin.prototype.setOptions = function(options){
   this.options = options;
 };
 
+Plugin.prototype.createAllJoynBus = function(){
+	var self = this; 
+	var bus = self.bus = alljoyn.BusAttachment('skynet-alljoyn');
+	var inter = self.inter = alljoyn.InterfaceDescription();
+	
+	
+	function onFound(name){
+	  console.log('FoundAdvertisedName', name);
+	  var sessionId = bus.joinSession(name, 27, 0);
+	  console.log('JoinSession ' + sessionId);
+	  self.sessions = _.union([sessionId], self.sessions);
+	}
+
+	function onLost(name){
+	  console.log('LostAdvertisedName', name);
+	}
+
+	function onChanged(name){
+	  console.log('NameOwnerChanged', name);
+	}
+
+
+	var listener = alljoyn.BusListener(onFound, onLost, onChanged);
+
+	bus.createInterface(this.options.interfaceName, inter);
+	bus.registerBusListener(listener);
+
+	bus.start();
+
+	function onAcceptSessionJoiner(port, joiner){
+	  console.log("AcceptSessionJoiner", port, joiner);
+	  //TODO possibly be more selective
+	  return true;
+	}
+
+	function onSessionJoined(port, sId, joiner){
+	  self.sessions = _.union([sId], self.sessions);
+	  console.log("SessionJoined", port, sId, joiner);
+	}
+
+	bus.connect();
+
+	if(self.options.advertisedName){
+	  var portListener = alljoyn.SessionPortListener(onAcceptSessionJoiner, onSessionJoined);
+	  var fullName = self.options.interfaceName + '.' + self.options.advertisedName;
+	  console.log("RequestName " + bus.requestName(fullName));
+	  console.log("AdvertiseName " + bus.advertiseName(fullName));
+	  console.log("BindSessionPort " + bus.bindSessionPort(27, portListener));
+	}
+
+	var notificationService = self.notificationService = alljoyn.NotificationService("skynet-alljoyn", bus, 0);
+	inter.addSignal(self.options.signalMemberName, "s", "msg");
+	var messageObject = self.messageObject = alljoyn.BusObject(self.options.messageServiceName);
+	messageObject.addInterface(inter);
+
+	function onSignalReceived(msg, info){
+	  console.log("Signal received: ", msg, info);
+	  messenger.send({
+	    devices: self.options.relayUuid,
+	    payload: {
+	      msg: msg,
+	      info: info
+	    }
+	  });
+	}
+	if(self.options.relayUuid){
+	  bus.registerSignalHandler(messageObject, onSignalReceived, inter, this.options.signalMemberName);
+	}
+
+	bus.registerBusObject(messageObject);
+
+	if(self.options.findAdvertisedName){
+	  bus.findAdvertisedName(this.options.findAdvertisedName);
+	}
+}; 
+
 Plugin.prototype.destroy = function(){
   this.bus.disconnect();
   this.bus.stop();
 };
 
+function getDefaultOptions(){
+    return {
+      advertisedName: 'test',
+      interfaceName: 'org.alljoyn.bus.samples.chat',
+      findAdvertisedName: 'org.alljoyn.bus.samples.chat',
+      signalMemberName: 'Chat',
+      messageServiceName: '/chatService',
+      relayUuid: '*'
+    };
+}
 module.exports = {
   messageSchema: MESSAGE_SCHEMA,
   optionsSchema: OPTIONS_SCHEMA,
-  Plugin: Plugin
+  Plugin: Plugin,
+  getDefaultOptions: getDefaultOptions	
 };
