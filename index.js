@@ -66,14 +66,12 @@ function Plugin(){
 util.inherits(Plugin, EventEmitter);
 
 Plugin.prototype.onMessage = function(message){
-	  console.log('skynet-alljoyn message received: ', message);
 	  var self = this;
 
 	  if(!message.payload){ return; }
 
 	  if(message.payload.method === 'send' && message.payload.message){
 	    self.sessions.forEach(function(sessionId){
-	      console.log('sending from skynet to session', sessionId, self.options.signalMemberName);
 	      self.messageObject.signal(null, sessionId, self.inter, self.options.signalMemberName, message.payload.message);
 	    });
 	  }
@@ -94,18 +92,14 @@ Plugin.prototype.createAllJoynBus = function(){
 	
 	
 	function onFound(name){
-	  console.log('FoundAdvertisedName', name);
 	  var sessionId = bus.joinSession(name, 27, 0);
-	  console.log('JoinSession ' + sessionId);
 	  self.sessions = _.union([sessionId], self.sessions);
 	}
 
 	function onLost(name){
-	  console.log('LostAdvertisedName', name);
 	}
 
 	function onChanged(name){
-	  console.log('NameOwnerChanged', name);
 	}
 
 
@@ -117,14 +111,12 @@ Plugin.prototype.createAllJoynBus = function(){
 	bus.start();
 
 	function onAcceptSessionJoiner(port, joiner){
-	  console.log("AcceptSessionJoiner", port, joiner);
 	  //TODO possibly be more selective
 	  return true;
 	}
 
 	function onSessionJoined(port, sId, joiner){
 	  self.sessions = _.union([sId], self.sessions);
-	  console.log("SessionJoined", port, sId, joiner);
 	}
 
 	bus.connect();
@@ -132,9 +124,6 @@ Plugin.prototype.createAllJoynBus = function(){
 	if(self.options.advertisedName){
 	  var portListener = alljoyn.SessionPortListener(onAcceptSessionJoiner, onSessionJoined);
 	  var fullName = self.options.interfaceName + '.' + self.options.advertisedName;
-	  console.log("RequestName " + bus.requestName(fullName));
-	  console.log("AdvertiseName " + bus.advertiseName(fullName));
-	  console.log("BindSessionPort " + bus.bindSessionPort(27, portListener));
 	}
 
 	var notificationService = self.notificationService = alljoyn.NotificationService("skynet-alljoyn", bus, 0);
@@ -143,7 +132,6 @@ Plugin.prototype.createAllJoynBus = function(){
 	messageObject.addInterface(inter);
 
 	function onSignalReceived(msg, info){
-	  console.log("Signal received: ", msg, info);
 	  messenger.send({
 	    devices: self.options.relayUuid,
 	    payload: {
