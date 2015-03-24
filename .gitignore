@@ -29,3 +29,4 @@ node_modules
 
 #Meshblu Config
 meshblu.json
+*.sublime-workspace

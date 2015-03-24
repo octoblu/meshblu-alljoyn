@@ -1,7 +1,8 @@
 var util = require('util');
 var EventEmitter = require('events').EventEmitter;
-var alljoyn = require('alljoyn'); 
+var alljoyn = require('alljoyn');
 var _ = require('lodash');
+
 var MESSAGE_SCHEMA = {
   type: 'object',
   properties: {
@@ -54,13 +55,12 @@ var OPTIONS_SCHEMA = {
 };
 
 function Plugin(){
-  this.options = getDefaultOptions(); 
+  this.options = getDefaultOptions();
   this.messageSchema = MESSAGE_SCHEMA;
   this.optionsSchema = OPTIONS_SCHEMA;
-  var self = this; 
-  self.sessions = []; 
+  var self = this;
+  self.sessions = [];
 
-	
   return this;
 }
 util.inherits(Plugin, EventEmitter);
@@ -86,11 +86,11 @@ Plugin.prototype.setOptions = function(options){
 };
 
 Plugin.prototype.createAllJoynBus = function(){
-	var self = this; 
+	var self = this;
 	var bus = self.bus = alljoyn.BusAttachment('skynet-alljoyn');
 	var inter = self.inter = alljoyn.InterfaceDescription();
-	
-	
+
+
 	function onFound(name){
 	  var sessionId = bus.joinSession(name, 27, 0);
 	  self.sessions = _.union([sessionId], self.sessions);
@@ -132,7 +132,7 @@ Plugin.prototype.createAllJoynBus = function(){
 	messageObject.addInterface(inter);
 
 	function onSignalReceived(msg, info){
-	  messenger.send({
+	  self.emit('message', {
 	    devices: self.options.relayUuid,
 	    payload: {
 	      msg: msg,
@@ -149,7 +149,7 @@ Plugin.prototype.createAllJoynBus = function(){
 	if(self.options.findAdvertisedName){
 	  bus.findAdvertisedName(this.options.findAdvertisedName);
 	}
-}; 
+};
 
 Plugin.prototype.destroy = function(){
   this.bus.disconnect();
@@ -170,5 +170,5 @@ module.exports = {
   messageSchema: MESSAGE_SCHEMA,
   optionsSchema: OPTIONS_SCHEMA,
   Plugin: Plugin,
-  getDefaultOptions: getDefaultOptions	
+  getDefaultOptions: getDefaultOptions
 };
