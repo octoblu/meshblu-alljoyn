@@ -1,12 +1,12 @@
 {
   "name": "meshblu-alljoyn",
-  "version": "1.0.6",
+  "version": "1.1.0",
   "scripts": {
     "start": "node command.js"
   },
   "dependencies": {
-    "meshblu": "^1.19.0",
-    "alljoyn": "^0.1.4",
+    "meshblu": "^1.21.0",
+    "alljoyn": "^1.0.0",
     "lodash": "^2.4.1"
   },
   "keywords": [
