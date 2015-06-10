@@ -16,10 +16,10 @@ var plugin = new Plugin();
 
 conx.on('ready', function(){
   conx.whoami({uuid: config.uuid}, function(device){
-	var pluginOptions = device.options || Plugin.getDefaultOptions();   
-	
+	var pluginOptions = device.options || Plugin.options;
+
     plugin.setOptions(pluginOptions);
-	plugin.createAllJoynBus(); 
+	plugin.createAllJoynBus();
   });
   conx.update({
     uuid: config.uuid,

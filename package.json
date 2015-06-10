@@ -1,6 +1,6 @@
 {
   "name": "meshblu-alljoyn",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "scripts": {
     "start": "node command.js"
   },
@@ -12,6 +12,6 @@
   "keywords": [
     "meshblu-connector",
     "gateblu",
-	"alljoyn"
+    "alljoyn"
   ]
 }
