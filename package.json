@@ -1,7 +1,7 @@
 {
   "name": "meshblu-alljoyn",
   "repository": "octoblu/meshblu-alljoyn",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "main": "connector.js",
   "scripts": {
     "preinstall": "node -e \"try{require('./skip-install.js')}catch(e){}\"",

@@ -89,18 +89,10 @@ Plugin.prototype.onConfig = function(device){
 
 Plugin.prototype.setOptions = function(options){
   var self = this;
-  var defaults = {
-    name: 'test',
-    interfaceName: 'org.alljoyn.bus.samples.chat',
-    findAdvertisedName: 'org.alljoyn.bus.samples.chat',
-    signalMemberName: 'Chat',
-    messageServiceName: '/chatService',
-    relayUuid: '*'
-  };
-  self.options = _.defaults(options, defaults);
+  self.options = options || {};
   debug('set options', self.options);
   if(self.bus){
-    debug('bus is created');
+    debug('bus is already created');
     return;
   }
   self.createAllJoynBus();
@@ -111,6 +103,11 @@ Plugin.prototype.createAllJoynBus = function(){
 
   if(!self.options.interfaceName){
     console.error('Missing Interface Name');
+    return;
+  }
+
+  if(!self.options.signalMemberName){
+    console.error('Missing Signal Member Name');
     return;
   }
 
