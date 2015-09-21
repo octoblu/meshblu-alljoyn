@@ -1,17 +1,35 @@
 {
   "name": "meshblu-alljoyn",
-  "version": "1.1.1",
+  "repository": "octoblu/meshblu-alljoyn",
+  "version": "1.2.0",
+  "main": "connector.js",
   "scripts": {
-    "start": "node command.js"
+    "preinstall": "node -e \"try{require('./skip-install.js')}catch(e){}\"",
+    "start": "node command.js",
+    "test": "exit 0"
   },
   "dependencies": {
-    "meshblu": "^1.21.0",
     "alljoyn": "^1.0.0",
-    "lodash": "^2.4.1"
+    "debug": "^2.1.0",
+    "lodash": "^3.10.1",
+    "meshblu": "^1.30.1"
   },
+  "bundledDependencies": [
+    "request",
+    "tar",
+    "fstream"
+  ],
+  "platformDependencies": {
+    "darwin": [],
+    "win32": null,
+    "win64": null,
+    "linux": [],
+    "android": null,
+    "ios": null
+  },
+  "license": "MIT",
   "keywords": [
     "meshblu-connector",
-    "gateblu",
-    "alljoyn"
+    "gateblu"
   ]
 }
