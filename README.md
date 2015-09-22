@@ -1,5 +1,11 @@
 ## meshblu-alljoyn
 
+[![Build Status](https://travis-ci.org/octoblu/meshblu-alljoyn.svg?branch=master)](https://travis-ci.org/octoblu/meshblu-alljoyn)
+[![Code Climate](https://codeclimate.com/github/octoblu/meshblu-alljoyn/badges/gpa.svg)](https://codeclimate.com/github/octoblu/meshblu-alljoyn)
+[![Test Coverage](https://codeclimate.com/github/octoblu/meshblu-alljoyn/badges/coverage.svg)](https://codeclimate.com/github/octoblu/meshblu-alljoyn)
+[![npm version](https://badge.fury.io/js/meshblu-alljoyn.svg)](http://badge.fury.io/js/meshblu-alljoyn)
+[![Gitter](https://badges.gitter.im/octoblu/help.svg)](https://gitter.im/octoblu/help)
+
 A Meshblu connector for use in Octoblu or with other services.
 
 ### Setup Instructions
